@@ -3,4 +3,9 @@
     <string name="to">To:</string>
     <string name="phone_number">XXX-XXX-XXXX</string>
     <string name="message">Message:</string>
+    <string name="channel">\"1223\"</string>
+    <string name="channel_id">\"14445\"</string>
+
+
+
 </resources>

@@ -1,27 +1,38 @@
 package com.example.myspecialstalker;
 
+import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import androidx.appcompat.app.AppCompatActivity;
-
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import android.Manifest;
+import android.os.Bundle;
+import android.os.Build;
+import android.preference.PreferenceManager;
 import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.os.Bundle;
-
+import android.widget.Toast;
 import android.widget.TextView;
 import android.widget.EditText;
 
-
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.MutableLiveData;
 
+
 public class MainActivity extends AppCompatActivity {
-    private static final int CODE_PERMISSION_REQ = 1546;
+    private static final int CODE_PERMISSION_REQ    = 1546;
+
     public MutableLiveData<Boolean> messageLiveData;
 
     private static final String messageContent = "messageContent";
@@ -99,9 +110,16 @@ public class MainActivity extends AppCompatActivity {
 
         EditText textMessage = (EditText) findViewById(R.id.editMessage);
         final EditText textNumber = (EditText) findViewById(R.id.editReceiver);
-        final TextView textViewNumber = (TextView) findViewById(R.id.editReceiverNumber);
+        final TextView viewNumber = (TextView) findViewById(R.id.editReceiverNumber);
         textMessage.setText(sharedPreferences.getString(messageContent, "Message: "));
         textNumber.setText(sharedPreferences.getString(receiverNumber, "To: "));
+
+        // If a number was entered to the number field, we can now commence
+        if(!textNumber.toString().equals("")){
+            String text ="Sending an SMS to  " + textNumber.toString();
+            viewNumber.setText(text);
+        }
+
         textMessage.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -135,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString(receiverNumber, s.toString());
                     editor.apply();
                     String readySignal ="Ready to send to: " + s.toString();
-                    textViewNumber.setText(readySignal);
+                    viewNumber.setText(readySignal);
                 }
             }
 
@@ -143,6 +161,14 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
             }
         });
+
+        CharSequence channel = getString( R.string.channel);
+        NotificationChannel notificationChannel = new NotificationChannel( getString(R.string.channel_id),
+                channel, NotificationManager.IMPORTANCE_DEFAULT);
+        notificationChannel.setDescription("sdf");
+
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(notificationChannel);
     }
 
     @Override
@@ -164,7 +190,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
 }
+
+
+
+
+
 
