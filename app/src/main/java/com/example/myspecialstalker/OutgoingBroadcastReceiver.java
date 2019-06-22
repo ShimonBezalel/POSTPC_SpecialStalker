@@ -19,9 +19,11 @@ import java.util.Objects;
 
 public class OutgoingBroadcastReceiver extends BroadcastReceiver {
 
-    private static final String TEXT = "TEXT";
-    private static final String PHONE_NUMBER = "PHONE_NUMBER";
-    public static final String CHANNEL_ID = "14445";
+    private static final String TEXT            = "TEXT";
+    private static final String PHONE_NUMBER    = "PHONE_NUMBER";
+    public static final String CHANNEL_ID       = "14445";
+    private final String INTENT_DELIVERED       = "SMS_DELIVERED";
+    private final String INTENT_SENT            = "SMS_SENT";
     private Context context;
 
 
@@ -40,12 +42,9 @@ public class OutgoingBroadcastReceiver extends BroadcastReceiver {
     }
 
     public void sendSyncSMS( String number, String textMessage ) {
-        final int id                    = (int) R.string.channel_id;
-        final String INTENT_DELIVERED   = "SMS_DELIVERED";
-        final String INTENT_SENT        = "SMS_SENT";
 
-        PendingIntent sendIntent = PendingIntent.getBroadcast(context, 0, new Intent(INTENT_SENT), 0);
-        PendingIntent deliveredIntent = PendingIntent.getBroadcast(context, 0, new Intent(INTENT_DELIVERED), 0);
+        PendingIntent sendIntent = PendingIntent.getBroadcast(context, 0, new Intent(this.INTENT_SENT), 0);
+        PendingIntent deliveredIntent = PendingIntent.getBroadcast(context, 0, new Intent(this.INTENT_DELIVERED), 0);
 
         this.context.registerReceiver(new BroadcastReceiver(){
             @Override
@@ -57,7 +56,7 @@ public class OutgoingBroadcastReceiver extends BroadcastReceiver {
                                 .setContentTitle("Received!").setSmallIcon(R.drawable.ic_launcher_background)
                                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                                 .build();
-                        NotificationManagerCompat.from(context).notify(id, ntfc);
+                        NotificationManagerCompat.from(context).notify(Integer.parseInt(CHANNEL_ID), ntfc);
                         break;
 
                     case Activity.RESULT_CANCELED:
@@ -66,7 +65,7 @@ public class OutgoingBroadcastReceiver extends BroadcastReceiver {
                         break;
                 }
             }
-        }, new IntentFilter(INTENT_DELIVERED));
+        }, new IntentFilter(this.INTENT_DELIVERED));
 
         this.context.registerReceiver(new BroadcastReceiver(){
             @Override
@@ -78,7 +77,7 @@ public class OutgoingBroadcastReceiver extends BroadcastReceiver {
                                 .setContentTitle("Sent!").setSmallIcon(R.drawable.ic_launcher_background)
                                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                                 .build();
-                        NotificationManagerCompat.from(context).notify(id, ntfc);
+                        NotificationManagerCompat.from(context).notify(Integer.parseInt(CHANNEL_ID), ntfc);
                         break;
 
                     case SmsManager.RESULT_ERROR_NO_SERVICE:
@@ -102,14 +101,14 @@ public class OutgoingBroadcastReceiver extends BroadcastReceiver {
                         break;
                 }
             }
-        }, new IntentFilter(INTENT_SENT));
+        }, new IntentFilter(this.INTENT_SENT));
 
 
         Notification ntfc = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setContentTitle("sending message..").setSmallIcon(R.drawable.ic_launcher_background)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .build();
-        NotificationManagerCompat.from(context).notify(id, ntfc);
+        NotificationManagerCompat.from(context).notify(Integer.parseInt(CHANNEL_ID), ntfc);
 
         SmsManager.getDefault().sendTextMessage(
                 number,
